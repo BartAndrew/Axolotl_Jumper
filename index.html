@@ -517,10 +517,19 @@
 
         // Background
         const bgH = images.background.height || height;
-        const off = ((-cameraY * 0.3) % bgH + bgH) % bgH;
-        ctx.drawImage(images.background, 0, off - bgH, width, bgH);
+        // Parallax: As cameraY (height climbed) increases, we want the background to scroll DOWN.
+        // So we add cameraY to the offset instead of subtracting, or adjust the modulo logic.
+        // Original: const off = ((-cameraY * 0.3) % bgH + bgH) % bgH;
+        // New:
+        const parallax = cameraY * 0.3;
+        const off = (parallax % bgH); // reduced complexity
+
+        // Draw 3 tiles to cover all scroll positions
+        // We draw at -bgH + off, off, and bgH + off.
+        // If off increases (camera goes up), the background moves down (positive Y).
+        ctx.drawImage(images.background, 0, (off - bgH), width, bgH);
         ctx.drawImage(images.background, 0, off, width, bgH);
-        ctx.drawImage(images.background, 0, off + bgH, width, bgH);
+        ctx.drawImage(images.background, 0, (off + bgH), width, bgH);
 
         // Platforms
         for (let p of platforms) {

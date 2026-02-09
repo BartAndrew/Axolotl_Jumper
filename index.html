@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Axolotl Jumper</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #0c6ba6;
+    font-family: sans-serif;
+    color: #fff;
+  }
+  #score {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 20px;
+    line-height: 1.2;
+    z-index: 10;
+    text-shadow: 0 0 2px #000;
+  }
+  #message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 0 4px #000;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="score">Score: 0<br>Best: 0</div>
+<div id="message"></div>
+<canvas id="game"></canvas>
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const scoreDiv = document.getElementById('score');
+  const messageDiv = document.getElementById('message');
+
+  // Load images
+  const sprite = new Image();
+  sprite.src = 'axolotl.png';
+  const platformsImg = new Image();
+  platformsImg.src = 'platforms.png';
+  const backgroundImg = new Image();
+  backgroundImg.src = 'background.png';
+
+  let gameRunning = false;
+  let highScore = parseInt(localStorage.getItem('axolotlBest') || '0', 10);
+
+  let assetsLoaded = 0;
+  [sprite, platformsImg, backgroundImg].forEach(img => {
+    img.onload = () => {
+      assetsLoaded++;
+      if (assetsLoaded === 3) startGame();
+    };
+  });
+
+  function startGame() {
+    gameRunning = true;
+    messageDiv.style.display = 'none';
+
+    let frameIndex = 0;
+    let frameTimer = 0;
+    const spriteCols = 2;
+    const spriteRows = 2;
+    const frameW = sprite.width / spriteCols;
+    const frameH = sprite.height / spriteRows;
+
+    const platCols = 3;
+    const platW = platformsImg.width / platCols;
+    const platH = platformsImg.height;
+
+    const player = {
+      x: width / 2 - frameW / 2,
+      y: height - 80,
+      vx: 0,
+      vy: 0,
+      w: frameW,
+      h: frameH,
+      jumpStrength: 16,
+      maxY: height - 80
+    };
+
+    let platforms = [];
+    const platformSpacing = 120;
+    for (let i = 0; i < 10; i++) {
+      const rand = Math.random();
+      const type = rand < 0.1 ? 2 : (rand < 0.3 ? 1 : 0);
+      platforms.push({
+        x: Math.random() * (width - platW),
+        y: height - i * platformSpacing,
+        type: type,
+        broken: false
+      });
+    }
+
+    let cameraY = 0;
+    let score = 0;
+
+    function reset() {
+      player.x = width / 2 - frameW / 2;
+      player.y = height - 80;
+      player.vx = 0;
+      player.vy = 0;
+      player.maxY = player.y;
+      platforms = [];
+      for (let i = 0; i < 10; i++) {
+        const rand = Math.random();
+        const type = rand < 0.1 ? 2 : (rand < 0.3 ? 1 : 0);
+        platforms.push({
+          x: Math.random() * (width - platW),
+          y: height - i * platformSpacing,
+          type: type,
+          broken: false
+        });
+      }
+      cameraY = 0;
+      score = 0;
+    }
+
+    function handleInput() {
+      document.onkeydown = (e) => {
+        if (!gameRunning && (e.code === 'Space' || e.code === 'Enter')) {
+          reset();
+          gameRunning = true;
+          messageDiv.style.display = 'none';
+        }
+      };
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'ArrowLeft') {
+          player.vx = -6;
+        } else if (e.code === 'ArrowRight') {
+          player.vx = 6;
+        }
+      });
+      window.addEventListener('keyup', (e) => {
+        if (e.code === 'ArrowLeft' && player.vx < 0) player.vx = 0;
+        else if (e.code === 'ArrowRight' && player.vx > 0) player.vx = 0;
+      });
+      window.addEventListener('touchstart', (e) => {
+        if (!gameRunning) {
+          reset();
+          gameRunning = true;
+          messageDiv.style.display = 'none';
+          return;
+        }
+        const touchX = e.touches[0].clientX;
+        player.vx = touchX < width / 2 ? -6 : 6;
+      });
+      window.addEventListener('touchend', () => {
+        player.vx = 0;
+      });
+    }
+    handleInput();
+
+    function update() {
+      player.vy += 0.5; // gravity
+      player.x += player.vx;
+      player.y += player.vy;
+      if (player.x > width) player.x = -player.w;
+      if (player.x + player.w < 0) player.x = width;
+
+      for (let p of platforms) {
+        if (player.vy > 0) {
+          if (
+            player.x + player.w > p.x &&
+            player.x < p.x + platW &&
+            player.y + player.h > p.y &&
+            player.y + player.h < p.y + platH &&
+            !p.broken
+          ) {
+            if (p.type === 1) {
+              p.broken = true;
+              player.vy = -player.jumpStrength * 0.5;
+            } else if (p.type === 2) {
+              player.vy = -player.jumpStrength * 1.5;
+            } else {
+              player.vy = -player.jumpStrength;
+            }
+          }
+        }
+      }
+
+      if (player.y < height * 0.5) {
+        const diff = height * 0.5 - player.y;
+        player.y = height * 0.5;
+        cameraY += diff;
+        score += Math.floor(diff);
+      }
+
+      for (let i = platforms.length - 1; i >= 0; i--) {
+        const p = platforms[i];
+        if (p.y - cameraY > height) {
+          platforms.splice(i, 1);
+          const rand = Math.random();
+          const type = rand < 0.1 ? 2 : (rand < 0.3 ? 1 : 0);
+          platforms.push({
+            x: Math.random() * (width - platW),
+            y: cameraY - Math.random() * 80 - 80,
+            type: type,
+            broken: false
+          });
+        }
+      }
+
+      if (player.y + player.h - cameraY > height) {
+        gameRunning = false;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem('axolotlBest', highScore);
+        }
+        messageDiv.innerHTML =
+          'Game Over<br>Score: ' + score +
+          '<br>Best: ' + highScore +
+          '<br><br>Tap screen or press space/enter to restart';
+        messageDiv.style.display = 'block';
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      const bgH = backgroundImg.height;
+      const bgY = -cameraY % bgH;
+      ctx.drawImage(backgroundImg, 0, bgY - bgH, width, bgH);
+      ctx.drawImage(backgroundImg, 0, bgY, width, bgH);
+      ctx.drawImage(backgroundImg, 0, bgY + bgH, width, bgH);
+
+      for (let p of platforms) {
+        const sx = p.type * platW;
+        const dy = p.y - cameraY;
+        ctx.drawImage(platformsImg, sx, 0, platW, platH, p.x, dy, platW, platH);
+      }
+
+      frameTimer++;
+      if (frameTimer > 10) {
+        frameIndex = (frameIndex + 1) % 4;
+        frameTimer = 0;
+      }
+      const col = frameIndex % spriteCols;
+      const row = Math.floor(frameIndex / spriteCols);
+      const sx = col * frameW;
+      const sy = row * frameH;
+      ctx.drawImage(sprite, sx, sy, frameW, frameH, player.x, player.y - cameraY, player.w, player.h);
+
+      scoreDiv.innerHTML = 'Score: ' + score + '<br>Best: ' + highScore;
+    }
+
+    function loop() {
+      if (gameRunning) {
+        update();
+        draw();
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  }
+})();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('service-worker.js').catch(function(err) {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>

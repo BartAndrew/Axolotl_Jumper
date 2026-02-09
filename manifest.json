@@ -1,8 +1,11 @@
 {
   "name": "Axolotl Jumper",
   "short_name": "Axolotl",
-  "start_url": ".",
+  "description": "A kid-friendly endless jumper with an axolotl hero.",
+  "start_url": "index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0c6ba6",
   "theme_color": "#0c6ba6",
   "icons": [

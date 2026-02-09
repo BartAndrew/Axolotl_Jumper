@@ -1,5 +1,5 @@
-const CACHE_NAME = 'axolotl-jumper-cache-v1';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'axolotl-jumper-cache-v2';
+const APP_SHELL_URLS = [
   './',
   'index.html',
   'manifest.json',
@@ -11,31 +11,52 @@ const URLS_TO_CACHE = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(URLS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL_URLS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+          return null;
+        })
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
-});
+  if (event.request.method !== 'GET') {
+    return;
+  }
 
-self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then(keyList =>
-      Promise.all(
-        keyList.map(key => {
-          if (!cacheWhitelist.includes(key)) {
-            return caches.delete(key);
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) {
+        return cached;
+      }
+
+      return fetch(event.request)
+        .then(networkResponse => {
+          if (!networkResponse || networkResponse.status !== 200) {
+            return networkResponse;
           }
+          const responseCopy = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseCopy));
+          return networkResponse;
         })
-      )
-    )
+        .catch(() => {
+          if (event.request.mode === 'navigate') {
+            return caches.match('index.html');
+          }
+          return caches.match('./');
+        });
+    })
   );
 });

@@ -256,6 +256,7 @@
         height = window.innerHeight;
         canvas.width = width;
         canvas.height = height;
+        ctx.imageSmoothingEnabled = false; // Pixel art look
       }
       window.addEventListener('resize', resize);
       resize();
@@ -304,7 +305,7 @@
       }
 
       // Level Gen
-      function getDifficulty() { return Math.min(1.35, cameraY / 8500); }
+      function getDifficulty() { return Math.min(1.35, Math.abs(cameraY) / 8500); }
 
       function addPlatform(y) {
         const diff = getDifficulty();
@@ -349,15 +350,18 @@
 
         // Add new
         while (platforms.length < 15) {
-          let topY = cameraY + height;
+          let topY = cameraY - 120; // Look just above screen
           // find highest platform (physically lowest Y value)
           let highest = platforms[0];
-          for (let p of platforms) if (p.y < highest.y) highest = p;
+          if (highest) {
+            for (let p of platforms) if (p.y < highest.y) highest = p;
+            topY = highest.y;
+          }
 
           const diff = getDifficulty();
           const minGap = 90 + diff * 45;
           const maxGap = 140 + diff * 65;
-          addPlatform(highest.y - randomRange(minGap, maxGap));
+          addPlatform(topY - randomRange(minGap, maxGap));
         }
       }
 
@@ -459,13 +463,13 @@
           }
         }
 
-        // Camera / Scroll
+        // Camera / Scroll Logic FIX
         const cutoff = height * 0.45;
-        if (player.y < cutoff) {
-          const diff = cutoff - player.y;
-          player.y = cutoff;
-          cameraY += diff;
-          score += Math.floor(diff);
+        // If player's screen Y position is above the cutoff, adjust camera
+        if (player.y - cameraY < cutoff) {
+          // Adjust cameraY so that player.y - cameraY = cutoff
+          cameraY = player.y - cutoff;
+          score = Math.floor(Math.abs(cameraY)); // Score is based on how high the camera has gone
           recycle(cameraY);
         }
 
@@ -509,32 +513,27 @@
           frameIndex = (frameIndex + 1) % 4;
         }
 
-        hudDiv.innerText = 'Score: ' + score + ' (Lv ' + (1 + Math.floor(cameraY / 2500)) + ')';
+        hudDiv.innerText = 'Score: ' + score + ' (Lv ' + (1 + Math.floor(Math.abs(cameraY) / 2500)) + ')';
       }
 
       function draw() {
         ctx.clearRect(0, 0, width, height);
 
-        // Background
+        // Background Parallax
         const bgH = images.background.height || height;
-        // Parallax: As cameraY (height climbed) increases, we want the background to scroll DOWN.
-        // So we add cameraY to the offset instead of subtracting, or adjust the modulo logic.
-        // Original: const off = ((-cameraY * 0.3) % bgH + bgH) % bgH;
-        // New:
-        const parallax = cameraY * 0.3;
-        const off = (parallax % bgH); // reduced complexity
+        // cameraY is negative as we go up.
+        // We want background to scroll down slowly.
+        // -cameraY is positive.
+        const parallax = -cameraY * 0.3; // Moves positive
+        const off = parallax % bgH;
 
-        // Draw 3 tiles to cover all scroll positions
-        // We draw at -bgH + off, off, and bgH + off.
-        // If off increases (camera goes up), the background moves down (positive Y).
-        ctx.drawImage(images.background, 0, (off - bgH), width, bgH);
+        ctx.drawImage(images.background, 0, off - bgH, width, bgH);
         ctx.drawImage(images.background, 0, off, width, bgH);
-        ctx.drawImage(images.background, 0, (off + bgH), width, bgH);
+        ctx.drawImage(images.background, 0, off + bgH, width, bgH);
 
         // Platforms
         for (let p of platforms) {
           if (p.broken) continue;
-          // frame calc
           let sx = p.type * 96;
           ctx.drawImage(images.platforms, sx, 0, 96, 32, p.x, p.y - cameraY, 96, 32);
         }
@@ -556,7 +555,6 @@
           let y = h.y - cameraY + Math.sin(h.phase) * 4;
           ctx.fillStyle = '#ff5252';
           ctx.beginPath(); ctx.arc(h.x, y, h.r, 0, 6.28); ctx.fill();
-          // tentacles
           ctx.strokeStyle = '#ff8a80';
           for (let i = -2; i <= 2; i++) {
             ctx.beginPath();

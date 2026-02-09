@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axolotl-jumper-cache-v2';
+const CACHE_NAME = 'axolotl-jumper-cache-v4';
 const APP_SHELL_URLS = [
   './',
   'index.html',

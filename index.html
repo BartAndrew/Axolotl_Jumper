@@ -236,6 +236,17 @@
       let width, height;
       let frameW = 48, frameH = 48, platW = 96, platH = 32;
       let frameIndex = 0, frameTimer = 0;
+      let spriteFrames = [
+        { x: 0, y: 0, w: 48, h: 48 },
+        { x: 48, y: 0, w: 48, h: 48 },
+        { x: 0, y: 48, w: 48, h: 48 },
+        { x: 48, y: 48, w: 48, h: 48 }
+      ];
+      let platformFrames = [
+        { x: 0, y: 0, w: 96, h: 32 },
+        { x: 96, y: 0, w: 96, h: 32 },
+        { x: 192, y: 0, w: 96, h: 32 }
+      ];
 
       let gameState = 'START'; // START, PLAYING, GAMEOVER
       let score = 0;
@@ -263,6 +274,80 @@
 
       function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
       function randomRange(min, max) { return min + Math.random() * (max - min); }
+      function findOpaqueSegments(imageData, axis) {
+        const { width: w, height: h, data } = imageData;
+        const length = axis === 'x' ? w : h;
+        const segments = [];
+        let start = -1;
+
+        for (let i = 0; i < length; i++) {
+          let hasOpaque = false;
+          if (axis === 'x') {
+            for (let y = 0; y < h; y++) {
+              if (data[(y * w + i) * 4 + 3] > 0) {
+                hasOpaque = true;
+                break;
+              }
+            }
+          } else {
+            const rowOffset = i * w * 4;
+            for (let x = 0; x < w; x++) {
+              if (data[rowOffset + x * 4 + 3] > 0) {
+                hasOpaque = true;
+                break;
+              }
+            }
+          }
+
+          if (hasOpaque && start < 0) start = i;
+          if (!hasOpaque && start >= 0) {
+            segments.push({ start, end: i - 1 });
+            start = -1;
+          }
+        }
+
+        if (start >= 0) segments.push({ start, end: length - 1 });
+        return segments;
+      }
+
+      function detectFrameRects(image, cols, rows) {
+        const temp = document.createElement('canvas');
+        temp.width = image.width;
+        temp.height = image.height;
+        const tctx = temp.getContext('2d', { willReadFrequently: true });
+        tctx.drawImage(image, 0, 0);
+        const imageData = tctx.getImageData(0, 0, image.width, image.height);
+
+        const colSegs = findOpaqueSegments(imageData, 'x').slice(0, cols);
+        const rowSegs = findOpaqueSegments(imageData, 'y').slice(0, rows);
+        if (colSegs.length !== cols || rowSegs.length !== rows) return null;
+
+        const frames = [];
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            const col = colSegs[x];
+            const row = rowSegs[y];
+            frames.push({
+              x: col.start,
+              y: row.start,
+              w: col.end - col.start + 1,
+              h: row.end - row.start + 1
+            });
+          }
+        }
+        return frames;
+      }
+
+      function cacheSpriteFrames() {
+        const detected = detectFrameRects(images.sprite, SPRITE_COLS, SPRITE_ROWS);
+        if (detected) spriteFrames = detected;
+      }
+
+      function cachePlatformFrames() {
+        const detected = detectFrameRects(images.platforms, PLAT_COLS, 1);
+        if (detected) platformFrames = detected;
+      }
+
       function overlaps(c, r) { // circle vs rect
         let closestX = clamp(c.x, r.x, r.x + r.w);
         let closestY = clamp(c.y, r.y, r.y + r.h);
@@ -534,8 +619,8 @@
         // Platforms
         for (let p of platforms) {
           if (p.broken) continue;
-          let sx = p.type * 96;
-          ctx.drawImage(images.platforms, sx, 0, 96, 32, p.x, p.y - cameraY, 96, 32);
+          const frame = platformFrames[p.type] || platformFrames[0];
+          ctx.drawImage(images.platforms, frame.x, frame.y, frame.w, frame.h, p.x, p.y - cameraY, 96, 32);
         }
 
         // Powerups
@@ -568,9 +653,8 @@
 
         // Player
         if (gameState !== 'GAMEOVER' || (player.y - cameraY < height)) {
-          let col = frameIndex % 2;
-          let row = Math.floor(frameIndex / 2);
-          ctx.drawImage(images.sprite, col * 48, row * 48, 48, 48, player.x, player.y - cameraY, 48, 48);
+          const frame = spriteFrames[frameIndex] || spriteFrames[0];
+          ctx.drawImage(images.sprite, frame.x, frame.y, frame.w, frame.h, player.x, player.y - cameraY, 48, 48);
         }
       }
 
@@ -608,9 +692,10 @@
 
       // Init
       images.sprite.onload = () => {
-        // Auto-size if needed, simplified here
+        cacheSpriteFrames();
         requestAnimationFrame(loop);
       };
+      images.platforms.onload = cachePlatformFrames;
     })();
 
     if ('serviceWorker' in navigator) {

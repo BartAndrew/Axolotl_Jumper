@@ -154,9 +154,17 @@
 
       // Constants
       const STORAGE_KEY = 'axolotlBest';
-      const SPRITE_COLS = 2;
-      const SPRITE_ROWS = 2;
-      const PLAT_COLS = 3;
+      const AXOLOTL_FRAMES = [
+        { x: 92, y: 100, w: 372, h: 330 },   // top-left
+        { x: 564, y: 134, w: 368, h: 294 },  // top-right
+        { x: 100, y: 580, w: 374, h: 328 },  // bottom-left
+        { x: 566, y: 580, w: 374, h: 300 }   // bottom-right
+      ];
+      const PLATFORM_FRAMES = [
+        { x: 52, y: 446, w: 282, h: 168 },   // normal
+        { x: 382, y: 444, w: 256, h: 176 },  // cracked
+        { x: 702, y: 388, w: 250, h: 260 }   // spring
+      ];
 
       const PLATFORM_NORMAL = 0;
       const PLATFORM_CRACKED = 1;
@@ -234,7 +242,7 @@
       images.background.src = 'background.png';
 
       let width, height;
-      let frameW = 48, frameH = 48, platW = 96, platH = 32;
+      let platW = 96, platH = 32;
       let frameIndex = 0, frameTimer = 0;
 
       let gameState = 'START'; // START, PLAYING, GAMEOVER
@@ -534,8 +542,8 @@
         // Platforms
         for (let p of platforms) {
           if (p.broken) continue;
-          let sx = p.type * 96;
-          ctx.drawImage(images.platforms, sx, 0, 96, 32, p.x, p.y - cameraY, 96, 32);
+          const sprite = PLATFORM_FRAMES[p.type] || PLATFORM_FRAMES[PLATFORM_NORMAL];
+          ctx.drawImage(images.platforms, sprite.x, sprite.y, sprite.w, sprite.h, p.x, p.y - cameraY, 96, 32);
         }
 
         // Powerups
@@ -568,9 +576,8 @@
 
         // Player
         if (gameState !== 'GAMEOVER' || (player.y - cameraY < height)) {
-          let col = frameIndex % 2;
-          let row = Math.floor(frameIndex / 2);
-          ctx.drawImage(images.sprite, col * 48, row * 48, 48, 48, player.x, player.y - cameraY, 48, 48);
+          const frame = AXOLOTL_FRAMES[frameIndex];
+          ctx.drawImage(images.sprite, frame.x, frame.y, frame.w, frame.h, player.x, player.y - cameraY, 48, 48);
         }
       }
 

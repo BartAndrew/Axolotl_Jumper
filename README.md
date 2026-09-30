@@ -1,102 +1,362 @@
-Axolotl Jumper Game Documentation
-Overview of the Game
+<div align="center">
 
-Axolotl Jumper is an endless‑jumping game inspired by classics like Doodle Jump. The player guides a cheerful axolotl through an underwater world filled with lily‑pad platforms. The goal is to climb as high as possible by landing on platforms, collecting power‑ups and avoiding danger. Each jump earns points, and the highest point reached becomes the high score. A lighthearted art style and simple controls make the game friendly for children, while the underlying physics and code structure provide learning opportunities for computer science students.
+# 🫧 Axolotl Jumper
 
-Key features
+### A cheerful endless-jumping adventure beneath the water
 
-Auto‑jumping axolotl: The axolotl continuously jumps upward. Players steer left and right to land on platforms.
+[![Play Axolotl Jumper](https://img.shields.io/badge/🎮_PLAY_NOW-Axolotl_Jumper-26C6DA?style=for-the-badge)](https://bartandrew.github.io/Axolotl_Jumper/)
 
-Different platform types: There are three lily‑pad platforms: normal pads that carry the axolotl, cracked pads that break after one use, and spring pads that launch the axolotl higher.
+**[▶ Play the game in your browser](https://bartandrew.github.io/Axolotl_Jumper/)**
 
-Infinite scrolling: As you climb, new platforms are generated above while old ones disappear below, giving a sense of an endless journey.
+<br>
 
-Score and high score: Your score increases as you climb. The best score is saved using localStorage so it persists across sessions.
+<img src="background.png" alt="Axolotl Jumper underwater world" width="760">
 
-Progressive difficulty: The spacing between platforms increases as you ascend, requiring more precise jumps.
+</div>
 
-Cross‑platform: The game works on desktop (arrow keys) and mobile (touch), and it’s packaged as a Progressive Web App (PWA) so it can be installed on phones or tablets and played offline.
+---
 
-Game Characters and Assets
+## 🌊 About the Game
 
-The protagonist is a pixel‑art axolotl, designed with a friendly face and animated flippers. The game uses a small sprite sheet to animate four frames of the axolotl’s jump cycle, shown below:
+**Axolotl Jumper** is a browser-based endless jumper starring a cheerful little axolotl exploring an underwater world.
 
-Platforms are drawn to resemble lily pads. Each pad has its own sprite: a solid pad (green), a cracked pad (brown cracks), and a spring pad with a coil of seaweed. The background is a seamless underwater scene with bubbles and soft gradients. All artwork is kept small and tileable so the game can run efficiently on low‑powered devices.
+The goal is simple: **keep climbing**.
 
-How the Game Works (for Kids)
+Your axolotl automatically bounces from platform to platform while you steer left and right. The higher you travel, the more challenging the climb becomes. Along the way you'll encounter normal lily pads, fragile cracked platforms, powerful spring platforms, collectible bubbles, moving hazards, and an ever-rising score.
 
-The game is simple to play:
+The game is deliberately easy to understand but increasingly difficult to master — designed to be fun for kids while also serving as a compact example of how a complete HTML5 game can be built with JavaScript and Canvas.
 
-Start the game. When the axolotl appears, it immediately starts jumping.
+<div align="center">
 
-Move left or right. On a keyboard, press the left (←) or right (→) arrow keys. On a touch screen, tap the left or right side of the screen. The axolotl will drift in that direction while jumping.
+### 🎮 [PLAY AXOLOTL JUMPER](https://bartandrew.github.io/Axolotl_Jumper/)
 
-Land on lily pads. Each lily pad carries you upward. Some pads break after you land on them once (they crack and disappear), while spring pads make you bounce extra high.
+No download required — open the link and start jumping.
 
-Keep climbing! Your score increases the higher you go. Try to beat your best score.
+</div>
 
-Watch out for falling. If you miss a pad and fall off the bottom of the screen, the game ends. You can play again right away.
+---
 
-This gameplay encourages hand–eye coordination and timing. Because the axolotl moves with a gentle “floaty” feel, even young players can steer it successfully. The colorful art and friendly character create an inviting environment, while the high score encourages friendly competition.
+## 🦎 Meet the Axolotl
 
-How the Game Works (for Computer Science Students)
+<div align="center">
 
-Under the hood, Axolotl Jumper demonstrates several important programming concepts:
+<img src="axolotl.png" alt="Axolotl Jumper character sprite sheet" width="480">
 
-Game loop and physics
+*The current Axolotl Jumper character sprite sheet.*
 
-The game uses an HTML5 <canvas> element and a requestAnimationFrame loop to update at ~60 frames per second. Each frame performs the following steps:
+</div>
 
-Update physics. The axolotl’s vertical velocity is decreased by gravity, and its position is updated. When the player presses left or right (or touches the screen), a small horizontal velocity is applied.
+The hero is a friendly pixel-art axolotl with oversized external gills, a bright expression, and a four-frame animated movement cycle.
 
-Collision detection. The game iterates through the list of platforms to check if the axolotl’s feet intersect a platform. If the axolotl is falling and collides with a platform from above, its vertical velocity is set to a negative value (jump), which depends on the platform type. Cracked platforms are marked as used and removed after one collision; spring platforms impart a larger jump velocity.
+The character was designed to feel:
 
-Scroll and platform generation. When the axolotl climbs past a certain height, the entire world scrolls downward. Platforms that fall below the screen are removed, and new platforms are generated with random x‑positions and types at the top. The vertical gap between platforms increases gradually to add difficulty.
+- **Friendly** — instantly approachable for younger players.
+- **Readable** — easy to see against the underwater background.
+- **Playful** — exaggerated proportions give the character personality.
+- **Animated** — multiple poses make every jump feel alive.
+- **Distinctive** — the axolotl gives the game its own identity instead of feeling like a generic platform jumper.
 
-Score and state management. The player’s score is proportional to the cumulative height climbed. If the axolotl falls below the bottom edge of the canvas, the game state changes to “game over,” and the current score is compared with the saved high score in localStorage.
+### 🎨 Character development
 
-Rendering. The background, platforms and axolotl sprite are drawn. The sprite sheet is cycled through four frames to animate the axolotl’s movement.
+Like the game itself, the character artwork evolved during development.
 
-Input handling
+<table>
+<tr>
+<td width="50%" align="center">
+<strong>Earlier character artwork</strong><br><br>
+<img src="axolotl-old.png" alt="Earlier Axolotl Jumper character artwork" width="360">
+</td>
+<td width="50%" align="center">
+<strong>Current character artwork</strong><br><br>
+<img src="axolotl.png" alt="Current Axolotl Jumper character artwork" width="360">
+</td>
+</tr>
+</table>
 
-Keyboard: Event listeners for keydown and keyup read the left and right arrow keys. When a key is pressed, a flag is set, causing horizontal acceleration; releasing the key clears the flag.
+The newer artwork supports the game's animated sprite system and fits the colourful underwater world more consistently.
 
-Touch: Event listeners for touchstart and touchend check the horizontal position of the touch relative to the canvas. Touching the left half moves the axolotl left; touching the right half moves it right.
+---
 
-Data structures
+## 🕹️ How to Play
 
-Platforms: Stored in an array of objects. Each platform object holds its x and y coordinates, its type (0 = normal, 1 = cracked, 2 = spring) and a used flag for cracked pads. New platforms are created by pushing objects into the array and removed by filtering them out when they move off screen.
+The axolotl **jumps automatically**. Your job is to steer.
 
-Sprite animation: The axolotl’s sprite sheet is divided into equal‑sized frames. A frameIndex increments every few frames to cycle through the four images. When drawing, the code uses drawImage with source coordinates offset by the frameIndex * frameWidth.
+### Desktop
 
-Progressive Web App (PWA)
+| Action | Controls |
+|---|---|
+| Move left | **← Left Arrow** or **A** |
+| Move right | **→ Right Arrow** or **D** |
+| Jump | Automatic |
+| Restart | Press **AGAIN** after Game Over |
 
-To make the game installable and playable offline, two additional files support the PWA features:
+### Mobile / Tablet
 
-manifest.json: This file defines metadata for the app—its name ("Axolotl Jumper"), short name, start URL ("index.html"), display mode ("standalone") and icons (the axolotl sprite scaled to 192×192 and 512×512). When a user chooses “Add to Home Screen,” the browser reads the manifest to create an icon on the device.
+- Tap or hold the **left side** of the screen to move left.
+- Tap or hold the **right side** of the screen to move right.
+- Release to stop steering.
+- Jumping happens automatically.
 
-service-worker.js: A service worker runs in the background. During installation, it caches the HTML page, JavaScript, images and manifest. Afterwards, fetch events are intercepted: if a resource exists in the cache, it is served immediately; otherwise, it is fetched from the network and cached. This cache‑first strategy allows the game to load quickly and work without an internet connection.
+### The objective
 
-Intended Outcome
+1. Land on platforms.
+2. Keep moving upward.
+3. Use spring platforms for extra height.
+4. Collect bubbles for a boost and bonus points.
+5. Avoid hazards.
+6. Don't fall below the bottom of the screen.
+7. Beat your best score.
 
-The goal of creating Axolotl Jumper is twofold:
+> **Tip:** You can wrap around the edge of the screen. Moving completely off one side brings the axolotl back from the opposite side.
 
-A fun, accessible game for children. The straightforward mechanics, colorful art and friendly character encourage playful experimentation. Children learn to time their jumps and practice left‑right steering without complicated controls. The game can be replayed endlessly, promoting perseverance and small improvements.
+---
 
-An educational example for budding developers. For computer science students, the project demonstrates how to build a simple game engine from scratch using JavaScript. Concepts include the game loop, basic kinematics, collision detection, event handling, random level generation and persistent storage. The PWA packaging shows how to add a manifest and service worker for offline play and app‑like installation.
+## 🍃 Platform Guide
 
-By combining these elements, Axolotl Jumper aims to be the best axolotl‑themed jumper game for “kids of all ages”—delivering entertainment while sparking curiosity about how games are made.
+<div align="center">
 
-Running and Modifying the Game
+<img src="platforms.png" alt="Axolotl Jumper platform artwork" width="520">
 
-Download or clone the project. The game consists of a single index.html file plus supporting assets (sprite sheet, platforms and background) and two PWA files (manifest.json, service-worker.js). Place these files in the same directory.
+</div>
 
-Serve over HTTP (recommended). Modern browsers restrict some features (like service workers) when loading directly from the filesystem. Use a simple local server—e.g. python -m http.server—and open http://localhost:8000/index.html in your browser.
+The climb is built from several platform types:
 
-Play and install. On desktop, use the arrow keys; on mobile, tap left/right. In supporting browsers, you can choose “Add to Home Screen” to install the PWA.
+| Platform | Behaviour |
+|---|---|
+| 🟢 **Normal lily pad** | Your reliable everyday platform. Land on it and bounce upward. |
+| 🟤 **Cracked lily pad** | Breaks after you land on it, so keep moving. |
+| 🌀 **Spring platform** | Launches the axolotl much higher than a normal jump. |
 
-Customize. Because the code is in a single HTML file, you can open it in a text editor and experiment. Try adjusting gravity, platform spacing, or adding new power‑ups. Replace the sprites with your own art or change the colors in the CSS. You can also modify the service-worker.js to experiment with different caching strategies.
+As your score rises, platform gaps become larger and cracked platforms become more common.
 
-Conclusion
+---
 
-Axolotl Jumper showcases how a small idea can become a fully fledged, cross‑platform game. It balances the playful spirit of an endless jumper with clear, well‑structured code. Kids can enjoy the challenge of climbing higher, while students can study and expand the code to learn about game development and web technologies. Whether you’re guiding an axolotl to new heights or exploring how service workers cache resources, this project offers something fun and instructive for everyone.
+## ✨ Power-ups & Hazards
+
+### 🫧 Bubble boost
+
+Collect floating bubbles to receive:
+
+- an immediate upward boost;
+- particle effects and sound;
+- **+200 bonus points**.
+
+### 🔴 Underwater hazards
+
+Moving hazards begin appearing during the climb. Touching one ends the run immediately, so sometimes the safest platform isn't the most direct one.
+
+---
+
+## 📈 Scoring & Difficulty
+
+Your score is primarily based on **how high you've climbed**.
+
+As the camera moves upward:
+
+- your score increases;
+- platform spacing gradually expands;
+- cracked platforms become more common;
+- hazards become more likely;
+- the HUD displays an increasingly higher level.
+
+Your best score is saved locally in the browser using `localStorage`, so you can return later and try to beat it.
+
+---
+
+## 🖼️ The Underwater World
+
+<div align="center">
+
+<img src="background.png" alt="Underwater background from Axolotl Jumper" width="760">
+
+</div>
+
+The background uses a scrolling underwater illustration that moves at a different speed from the gameplay layer, creating a subtle **parallax effect** and giving the endless climb more depth.
+
+The game combines:
+
+- colourful underwater scenery;
+- pixel-art character animation;
+- lily-pad platform sprites;
+- particles;
+- sound effects;
+- looping background music;
+- bubbles and hazards.
+
+---
+
+## 🧠 How It Works
+
+Axolotl Jumper is intentionally lightweight. Most of the game lives inside a single `index.html` file and uses the browser's built-in technologies.
+
+### Core technologies
+
+- **HTML5 Canvas** for game rendering
+- **Vanilla JavaScript** for the game engine
+- **CSS** for menus and HUD styling
+- **Web Audio API** for generated sound effects
+- **HTML Audio** for background music
+- **Local Storage** for the high score
+- **Progressive Web App (PWA)** support
+- **Service Worker** for offline caching
+- **GitHub Pages** for hosting
+
+No game engine or JavaScript framework is required.
+
+---
+
+## ⚙️ Game Architecture
+
+The main game loop runs with `requestAnimationFrame()` and performs several jobs every frame:
+
+1. **Read input** from keyboard or touch controls.
+2. **Apply physics** including horizontal movement and gravity.
+3. **Detect collisions** between the axolotl and platforms.
+4. **Handle platform effects** such as cracked pads and springs.
+5. **Update power-ups and hazards**.
+6. **Scroll the camera** as the player climbs.
+7. **Generate new platforms** above the visible screen.
+8. **Remove old objects** below the play area.
+9. **Update animation and particles**.
+10. **Render the world** to the Canvas.
+
+The game also increases difficulty based on climbing height, making the world progressively less forgiving.
+
+---
+
+## 📱 Progressive Web App
+
+Axolotl Jumper includes both a `manifest.json` and `service-worker.js`.
+
+That means supported browsers can treat the game more like an installed application:
+
+- launch in standalone mode;
+- add it to a device home screen;
+- cache game files;
+- continue loading previously cached resources offline.
+
+---
+
+## 🚀 Play the Game
+
+<div align="center">
+
+### 👉 **[bartandrew.github.io/Axolotl_Jumper](https://bartandrew.github.io/Axolotl_Jumper/)**
+
+[![Launch Game](https://img.shields.io/badge/Launch_Game-PLAY-00BCD4?style=for-the-badge&logo=github)](https://bartandrew.github.io/Axolotl_Jumper/)
+
+</div>
+
+---
+
+## 💻 Run It Locally
+
+Clone the repository:
+
+```bash
+git clone https://github.com/BartAndrew/Axolotl_Jumper.git
+cd Axolotl_Jumper
+```
+
+Then serve the folder with a small local web server.
+
+For example, with Python:
+
+```bash
+python -m http.server 8000
+```
+
+Open:
+
+```text
+http://localhost:8000
+```
+
+Using a local web server is recommended because browser security rules restrict some service-worker features when a page is opened directly from the file system.
+
+---
+
+## 🗂️ Project Structure
+
+```text
+Axolotl_Jumper/
+├── index.html          # Game, physics, UI and rendering
+├── axolotl.png         # Current animated axolotl sprite sheet
+├── axolotl-old.png     # Earlier character artwork
+├── platforms.png       # Current platform sprite sheet
+├── platforms-old.png   # Earlier platform artwork
+├── platforms-trans.png # Transparent platform asset
+├── background.png      # Underwater background
+├── GameMusic.mp3       # Looping background music
+├── manifest.json       # PWA metadata
+├── service-worker.js   # Offline caching
+└── README.md           # Project guide
+```
+
+---
+
+## 🔬 Learning Project
+
+Beyond being a game, Axolotl Jumper is a useful small project for learning web game development.
+
+It demonstrates:
+
+- game loops;
+- velocity and gravity;
+- procedural level generation;
+- collision detection;
+- camera scrolling;
+- parallax backgrounds;
+- sprite-sheet animation;
+- touch and keyboard controls;
+- particles;
+- audio;
+- persistent browser storage;
+- responsive Canvas rendering;
+- Progressive Web Apps;
+- offline caching.
+
+Because there are no external engine dependencies, the code can be opened and studied directly.
+
+---
+
+## 🛠️ Ideas for Future Development
+
+Possible directions for future versions include:
+
+- additional axolotl characters and skins;
+- themed underwater biomes;
+- more platform types;
+- enemies and friendly sea creatures;
+- collectible pearls;
+- temporary shields and special abilities;
+- achievements;
+- multiplayer or shared leaderboards;
+- richer character animation;
+- boss or challenge stages;
+- difficulty modes;
+- accessibility options.
+
+---
+
+## ❤️ Project Philosophy
+
+Axolotl Jumper started from a simple idea:
+
+> **Make something playful, approachable and fun — then use it as a place to experiment with game design and web technology.**
+
+The result is a small game that can be played immediately in a browser, enjoyed by kids, and pulled apart by anyone interested in learning how browser games work.
+
+<div align="center">
+
+<br>
+
+## 🫧 Ready to jump?
+
+### **[🎮 PLAY AXOLOTL JUMPER](https://bartandrew.github.io/Axolotl_Jumper/)**
+
+<br>
+
+Built with HTML, JavaScript, Canvas, pixel art and one very determined axolotl.
+
+</div>

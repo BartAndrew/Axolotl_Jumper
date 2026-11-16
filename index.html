@@ -256,10 +256,12 @@
           sprite: new Image(),
           platforms: new Image(),
           background: new Image(),
+          jellyfish: new Image(),
         };
         images.sprite.src = "axolotl.png";
         images.platforms.src = "platforms.png";
-        images.background.src = "background.png";
+        images.background.src = "background-loop.svg";
+        images.jellyfish.src = "jellyfish.svg";
 
         let width, height;
         let platW = 96,
@@ -592,17 +594,19 @@
         function draw() {
           ctx.clearRect(0, 0, width, height);
 
-          // Background Parallax
-          const bgH = images.background.height || height;
-          // cameraY is negative as we go up.
-          // We want background to scroll down slowly.
-          // -cameraY is positive.
-          const parallax = -cameraY * 0.3; // Moves positive
-          const off = parallax % bgH;
-
-          ctx.drawImage(images.background, 0, off - bgH, width, bgH);
-          ctx.drawImage(images.background, 0, off, width, bgH);
-          ctx.drawImage(images.background, 0, off + bgH, width, bgH);
+          // Pixel-art reef background: repeat by a fixed scaled tile height.
+          // Tile edges have identical pixels; modulo positions stay seam-free on
+          // tall desktop screens, phones, and after resize.
+          ctx.fillStyle = "#168fb8";
+          ctx.fillRect(0, 0, width, height);
+          if (images.background.complete && images.background.naturalWidth) {
+            const bgH = width * images.background.naturalHeight / images.background.naturalWidth;
+            const parallax = -cameraY * 0.3;
+            const off = ((parallax % bgH) + bgH) % bgH;
+            for (let y = off - bgH; y < height; y += bgH) {
+              ctx.drawImage(images.background, 0, y, width, bgH);
+            }
+          }
 
           // Platforms
           for (let p of platforms) {
@@ -634,19 +638,29 @@
             ctx.stroke();
           }
 
-          // Hazards
-          for (let h of hazards) {
-            let y = h.y - cameraY + Math.sin(h.phase) * 4;
-            ctx.fillStyle = "#ff5252";
-            ctx.beginPath();
-            ctx.arc(h.x, y, h.r, 0, 6.28);
-            ctx.fill();
-            ctx.strokeStyle = "#ff8a80";
-            for (let i = -2; i <= 2; i++) {
+          // Matching, animated jellyfish hazard sprite.
+          for (const h of hazards) {
+            const y = h.y - cameraY + Math.sin(h.phase) * 4;
+            const pulse = 1 + Math.sin(h.phase * 1.4) * 0.07;
+            if (images.jellyfish.complete && images.jellyfish.naturalWidth) {
+              ctx.save();
+              ctx.translate(h.x, y);
+              ctx.scale(pulse, 1 / pulse);
+              ctx.drawImage(images.jellyfish, -24, -25, 48, 52);
+              ctx.restore();
+            } else {
+              // Fallback silhouette while the SVG loads (or when offline).
+              ctx.fillStyle = "#d88bdd";
               ctx.beginPath();
-              ctx.moveTo(h.x + i * 4, y);
-              ctx.lineTo(h.x + i * 4 + Math.sin(h.phase + i) * 6, y + 25);
-              ctx.stroke();
+              ctx.ellipse(h.x, y - 6, 20, 17, 0, Math.PI, 2 * Math.PI);
+              ctx.fill();
+              ctx.strokeStyle = "#b586e8";
+              for (let i = -2; i <= 2; i++) {
+                ctx.beginPath();
+                ctx.moveTo(h.x + i * 7, y);
+                ctx.lineTo(h.x + i * 7 + Math.sin(h.phase + i) * 5, y + 18);
+                ctx.stroke();
+              }
             }
           }
 

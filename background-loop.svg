@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="1024" viewBox="0 0 512 1024">
+<defs>
+ <linearGradient id="sea"><stop stop-color="#087dab"/><stop offset=".5" stop-color="#21bbd1"/><stop offset="1" stop-color="#067daf"/></linearGradient>
+ <linearGradient id="ray" x1="0" x2=".65" y1="0" y2="1"><stop stop-color="#d2fff3" stop-opacity=".25"/><stop offset="1" stop-color="#c8fff5" stop-opacity="0"/></linearGradient>
+ <g id="bubble" fill="none" stroke="#b7f9ff" stroke-width="3"><circle cx="0" cy="0" r="7"/><path d="M-4 -4l3 -2" stroke="#fff" stroke-width="2"/></g>
+ <g id="kelp"><path d="M0 90Q-12 66 0 48T0 2M14 96Q29 74 16 56T19 4" stroke="#187e9b" stroke-width="12" fill="none" stroke-linecap="round"/><path d="M0 90Q-12 66 0 48T0 2M14 96Q29 74 16 56T19 4" stroke="#4bc48b" stroke-width="7" fill="none" stroke-linecap="round"/></g>
+ <g id="coral" fill="none" stroke="#f58cbe" stroke-width="10" stroke-linecap="round"><path d="M0 50V10M0 32L-18 15M0 21L16 5M-18 15L-17 0M16 5L20 -6"/></g>
+ <g id="fish" fill="#167fa4"><path d="M-14 0Q-2-11 12 0Q-2 11-14 0L-24-10V10Z"/><circle cx="7" cy="-2" r="1.8" fill="#a5e5f0"/></g>
+</defs>
+<!-- Only horizontal gradients: top and bottom pixel rows have identical color, so tiles loop vertically. -->
+<rect width="512" height="1024" fill="url(#sea)"/>
+<path d="M50 0H123L260 1024H181Z" fill="url(#ray)" opacity=".5"/>
+<path d="M330 0H385L467 1024H426Z" fill="url(#ray)" opacity=".38"/>
+<g opacity=".14" fill="#095d93">
+ <path d="M0 190Q70 150 117 205T235 195Q326 144 420 205T512 188V307H0Z"/>
+ <path d="M0 541Q90 480 151 539T312 535Q419 471 512 536V622H0Z"/>
+ <path d="M0 860Q96 797 174 857T338 857Q423 805 512 847V956H0Z"/>
+</g>
+<!-- Decoration hugs side margins. Nothing resembles a jumpable lily pad or horizontal ledge. -->
+<g opacity=".6"><use href="#kelp" transform="translate(14 197) scale(.85)"/><use href="#kelp" transform="translate(486 324) scale(-.85 .9)"/><use href="#kelp" transform="translate(18 670)"/><use href="#kelp" transform="translate(494 886) scale(-.85)"/></g>
+<g opacity=".68"><use href="#coral" transform="translate(9 327) scale(.75)"/><use href="#coral" transform="translate(497 683) scale(.8)"/><use href="#coral" transform="translate(19 937) scale(.7)"/></g>
+<g opacity=".26"><use href="#fish" transform="translate(388 267) scale(.8)"/><use href="#fish" transform="translate(420 282) scale(.65)"/><use href="#fish" transform="translate(130 767) scale(.75)"/><use href="#fish" transform="translate(158 751) scale(.6)"/></g>
+<g opacity=".45"><use href="#bubble" transform="translate(82 108)"/><use href="#bubble" transform="translate(300 246) scale(.6)"/><use href="#bubble" transform="translate(437 445) scale(.8)"/><use href="#bubble" transform="translate(121 519) scale(.55)"/><use href="#bubble" transform="translate(362 703)"/><use href="#bubble" transform="translate(230 901) scale(.7)"/></g>
+</svg>

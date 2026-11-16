@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="104" viewBox="0 0 96 104">
+<defs><linearGradient id="cap" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#ffd1ef"/><stop offset=".55" stop-color="#f389d5"/><stop offset="1" stop-color="#8cdcf6"/></linearGradient></defs>
+<!-- Soft pixel-art-styled lavender jellyfish; the animation comes from canvas pulsing. -->
+<g stroke="#7145ae" stroke-width="4" stroke-linejoin="round">
+ <path d="M26 63V80L18 88M39 66V84L34 96M56 66V86L61 96M71 63V82L80 88" fill="none" stroke="#ae86e5" stroke-width="8" stroke-linecap="round"/>
+ <path d="M8 45V37H13V26H21V17H32V10H64V17H76V26H83V37H88V52H82V61H73V66H62V61H53V67H43V61H34V66H23V60H13V54H8Z" fill="url(#cap)"/>
+ <path d="M17 38H21V27H29V20H37" fill="none" stroke="#fff0fa" stroke-width="5" opacity=".8"/>
+ <rect x="30" y="42" width="9" height="10" rx="2" fill="#493074" stroke="none"/>
+ <rect x="57" y="42" width="9" height="10" rx="2" fill="#493074" stroke="none"/>
+ <rect x="34" y="44" width="3" height="3" fill="#fff" stroke="none"/>
+ <rect x="60" y="44" width="3" height="3" fill="#fff" stroke="none"/>
+ <path d="M41 57H55" stroke="#784ea3" stroke-width="3"/>
+</g>
+<g fill="#caf8ff" opacity=".8"><rect x="63" y="23" width="8" height="8"/><rect x="70" y="34" width="5" height="5"/></g>
+</svg>

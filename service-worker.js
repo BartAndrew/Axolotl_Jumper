@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axolotl-jumper-cache-v5';
+const CACHE_NAME = 'axolotl-jumper-cache-v6';
 const APP_SHELL_URLS = [
   './',
   'index.html',
@@ -6,7 +6,8 @@ const APP_SHELL_URLS = [
   'service-worker.js',
   'axolotl.png',
   'platforms.png',
-  'background.png'
+  'background-loop.svg',
+  'jellyfish.svg'
 ];
 
 self.addEventListener('install', event => {
